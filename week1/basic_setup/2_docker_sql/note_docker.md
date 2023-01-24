@@ -1,4 +1,75 @@
-![](image/sys_arg.PNG)
-~~~bash 
-docker run
+# Docker
+### "Isolate"
+เมื่อเราทำอะไรก็ตามใน container พอออกจาก container ก็จะกลับมาเป็นเหมือนเดิม ต่อให้ลบมทุกอย่างออก พอ run container ใหม่ก็จะกลับมามีครบเหมือนเดิม
+
+### Build -> Run
+หลักการคือ เราจะ build container ขึ้นมา (build ครั้งเดียว) โดยมันจะไปอ่าน config จาก Dockerfile จากนั้นเราก็จะเอา container นั้นมารัน แล้วทำอะไรต่อบน container นั้นๆได้
+
+### Basic Command
+~~~ 
+docker build -t {name}:{tag}
+~~~ 
+- ถ้าใน local เราไม่มี container ไหน เวลา run มันจะ automatically pull image ลงมาเองเลย (pull image -> build container -> run container) 
+- เราสามารถดูได้ว่ามี container อะไรบ้างใน docker desktop/ command ก็ได้
+- tag (optional) คล้ายๆเวอชั่น ex. python:3.9 test:pandas ถ้าไม่ใส่ tag ก็จะเป็น lastest 
+![](image/tag.jpg)
+- ถ้า tag เดียวกัน แล้ว build ใหม่ ก็จะเหมือนเรา save ทับ tag เดิม 
+
+~~~ 
+docker run -it {name}
 ~~~
+
+### Example
+~~~
+docker run -it --entrypoint=bash python:3.9
+~~~
+![](image/entry_point_bash.jpg)
+- พอ run แล้วก็จะเข้าไปอยู่ใน root ของ container นั้นๆ จะออกจาก container ก็ต้อง exit (exit / ctrl+d etc.)
+- เมื่อเราให้ entry_point=bash เวลาเรารัน container นี้ เราก็จะสามารถรันคำสั่ง pip ต่อได้ กลับกัน ถ้าให้ entrypoint=python ก็จะรัน python ได้ แต่ pip ไม่ได้
+
+### Docker file
+~~~
+FROM python:3.9.1
+
+RUN pip install pandas
+
+ENTRYPOINT [ "python"]
+~~~
+
+- ตย.นี้คือ เตรียม pandas ไว้ให้แล้ว พอรัน container นี้ เราก็จะสามารถ import pandas ได้เลย ไม่ต้อง pip หรือเราจะรัน python อะไรก็ได้
+- entrypoint=python แต่ทำไมถึง RUN pip ได้?? เพราะ RUN pip install pandas จะเกิดขึ้นก่อน entrypoint (ตามในไฟล์เลย) คนละเคสกับเรารัน container แล้วค่อยรันคำสั่งอะไรต่อภายใน root ของ container นั้นๆ
+
+
+~~~
+FROM python:3.9.1
+
+RUN pip install pandas
+
+WORKDIR /app
+COPY pipeline.py pipeline.py
+
+ENTRYPOINT [ "python", "pipeline.py" ]
+~~~
+- อันนี้คือ install pandas ให้ แล้วก็สร้าง dir app แล้ว copy file pipeline.py ไปยัง pipeline.py เส็ดแล้วจะไปรัน pipeline.py และเปิด python มาให้เรารันต่อได้
+
+
+pipeline.py;
+~~~
+import pandas as pd
+import sys #get arg from system
+
+print(sys.argv)
+
+day = sys.argv[1]
+
+# do some job
+
+print(f'job finished for day: f{day}')
+~~~
+- เราสามารถรับ argument จาก system ได้ 
+
+![](image/sys_arg.PNG)
+
+- พอเรา run container แล้วใส่ arg มา pipeline.py ก็จะรับ arg มา print 
+- ถ้าเราใส่หลายๆ arg มันก็รับมาหมดได้เหมือนกัน เป็น sys.argv[2] , sys.argv[3], ...
+
