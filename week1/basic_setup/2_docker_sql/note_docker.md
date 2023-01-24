@@ -16,7 +16,7 @@ docker build -t {name}:{tag}
 - ถ้า tag เดียวกัน แล้ว build ใหม่ ก็จะเหมือนเรา save ทับ tag เดิม 
 
 ~~~ 
-docker run -it {name}
+docker run -it {name}:{tag}
 ~~~
 
 ### Example
