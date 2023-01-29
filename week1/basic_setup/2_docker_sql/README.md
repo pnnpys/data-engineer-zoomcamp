@@ -8,7 +8,7 @@
 
 2. [run postgres](#run-postgres)
 
-3. [pipeline](#pipline)
+3. [pipeline](#pipeline)
 
 # Intro to Docker
 ### "Isolate"
@@ -86,7 +86,7 @@ print(f'job finished for day: f{day}')
 - ถ้าเราใส่หลายๆ arg มันก็รับมาหมดได้เหมือนกัน เป็น sys.argv[2] , sys.argv[3], ...
 
 
-## Run postgres 
+# Run postgres 
 
 create docker network
 
