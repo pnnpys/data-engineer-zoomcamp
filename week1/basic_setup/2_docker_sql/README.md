@@ -119,4 +119,38 @@ docker run -it \
   dpage/pgadmin4
 ~~~
 
-# Pipline
+# Pipeline
+
+download data by wget
+~~~python
+os.system(f"wget {url} -O {parquet_name}")
+~~~
+
+read parquet file into smaller chunk (10000 records per each chunk)
+The batches variable data type will be generator 
+
+~~~python
+_file = pq.ParquetFile(parquet_name)
+
+batches = _file.iter_batches(batch_size = 10000) 
+~~~ 
+
+connect to db
+~~~python
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
+~~~
+
+clean data and insert each chunk of data to db
+~~~python
+for data_chunk in batches:
+    t_start = time()
+
+    df_chunk = data_chunk.to_pandas()
+    df_chunk['tpep_pickup_datetime'] = pd.to_datetime(df_chunk.tpep_pickup_datetime)
+    df_chunk['tpep_dropoff_datetime'] = pd.to_datetime(df_chunk.tpep_dropoff_datetime)
+
+    t_end = time()
+    df_chunk.to_sql(name=table_name, con=engine, if_exists='append')
+
+    print('inserted another chunk..., tool %.3f second' % (t_end - t_start))
+~~~
