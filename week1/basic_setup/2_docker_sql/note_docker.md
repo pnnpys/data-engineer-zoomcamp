@@ -1,11 +1,23 @@
 # Docker
+
+# Table of content
+
+0. [Intro to Docker](#intro-to-docker)
+
+1. [basic comand](#basic-command)
+
+2. [run postgres](#run-postgres)
+
+3. [pipeline](#pipline)
+
+# Intro to Docker
 ### "Isolate"
 เมื่อเราทำอะไรก็ตามใน container พอออกจาก container ก็จะกลับมาเป็นเหมือนเดิม ต่อให้ลบมทุกอย่างออก พอ run container ใหม่ก็จะกลับมามีครบเหมือนเดิม
 
 ### Build -> Run
 หลักการคือ เราจะ build container ขึ้นมา (build ครั้งเดียว) โดยมันจะไปอ่าน config จาก Dockerfile จากนั้นเราก็จะเอา container นั้นมารัน แล้วทำอะไรต่อบน container นั้นๆได้
 
-### Basic Command
+# Basic Command
 ~~~ 
 docker build -t {name}:{tag}
 ~~~ 
@@ -73,3 +85,38 @@ print(f'job finished for day: f{day}')
 - พอเรา run container แล้วใส่ arg มา pipeline.py ก็จะรับ arg มา print 
 - ถ้าเราใส่หลายๆ arg มันก็รับมาหมดได้เหมือนกัน เป็น sys.argv[2] , sys.argv[3], ...
 
+
+## Run postgres 
+
+create docker network
+
+```bash
+docker network create pg-network
+```
+
+
+run postgres db
+
+~~~bash
+docker run -it \
+  -e POSTGRES_USER="root" \
+  -e POSTGRES_PASSWORD="root" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --network=pg-network \
+  --name=pg-database \
+  postgres:13
+~~~
+
+connect to postgres by pgAdmin
+~~~bash
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -p 8080:80 \
+  --network=pg-network \
+  dpage/pgadmin4
+~~~
+
+# Pipline
